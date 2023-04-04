@@ -1,6 +1,6 @@
 {
     "name": "Mail Filter",
-    "description": "Mail Filter, that only allows user logins from defined domains",
+    "description": "Mail Filter, that only allows user logins from defined domains. Inspired by: https://github.com/r-j/mailchecker he made 90% (or more) of the work.",
     "version": "0.1",
     "hasLocale": true,
     "mobileFriendly": true,
