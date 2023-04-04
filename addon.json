@@ -1,0 +1,22 @@
+{
+    "name": "Mail Filter",
+    "description": "Mail Filter, that only allows user logins from defined domains",
+    "version": "0.1",
+    "hasLocale": true,
+    "mobileFriendly": true,
+    "settingsUrl": "/dashboard/settings/mailfilter",
+    "pluginUrl": "https://github.com/kaahila/mailfilter",
+    "settingsPermission": "Garden.Settings.Manage",
+    "license": "MIT",
+    "key": "mailfilter",
+    "type": "addon",
+    "authors": [
+        {
+            "name": "Tobias Herbold",
+            "homepage": "https://github.com/kaahila"
+        }
+    ],
+    "require": {
+        "vanilla": ">=3.3"
+    }
+}
