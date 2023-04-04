@@ -4,7 +4,7 @@
     "version": "0.1",
     "hasLocale": true,
     "mobileFriendly": true,
-    "settingsUrl": "/dashboard/settings/mailfilter",
+    "settingsUrl": "/settings/mailfilter",
     "pluginUrl": "https://github.com/kaahila/mailfilter",
     "settingsPermission": "Garden.Settings.Manage",
     "license": "MIT",
@@ -15,8 +15,5 @@
             "name": "Tobias Herbold",
             "homepage": "https://github.com/kaahila"
         }
-    ],
-    "require": {
-        "vanilla": ">=3.3"
-    }
+    ]
 }

@@ -10,7 +10,7 @@
  * @author Tobias Herbold
  * @license MIT
  */
-class MailcheckerPlugin extends Gdn_Plugin
+class MailFilterPlugin extends Gdn_Plugin
 {
     /**
      * Allow updating the list of domains manually.
@@ -20,26 +20,22 @@ class MailcheckerPlugin extends Gdn_Plugin
      * @since 0.1
      * @package mailfilter
      */
-    public function settingsController_mailchecker_create($sender): void
+    public function settingsController_mailfilter_create($sender): void
     {
         $sender->permission('Garden.Settings.Manage');
+        $sender->setData('Title', t('Mail Filter Settings'));
         $sender->setHighlightRoute('dashboard/settings/plugins');
-        $sender->setData('Title', Gdn::translate('Mail Filter Settings'));
-        $sender->setData(
-            'Description',
-            Gdn::translate('List Domains with an comma between.')
-        );
 
-        // Fetch new list and give feedback abut the number of providers.
-        $sender->Form = new Gdn_Form();
-        if ($sender->Form->authenticatedPostBack()) {
-//            $saved = $this->updateList();
-            $sender->informMessage(
-                Gdn::translate('Save completed')
-            );
-        }
+        $conf = new ConfigurationModule($sender);
+        $conf->initialize([
+            'Plugins.mailfilter.allowed_domains' => [
+                'Description' => t('Domains'),
+                'Default' => 'gmail.com',
+                'LabelCode' => t('List Domains with an comma between.')
+            ]
+        ]);
 
-        $sender->render('settings', '', 'plugins/mailfilter');
+        $conf->renderAll();;
     }
 
     /**
@@ -51,7 +47,7 @@ class MailcheckerPlugin extends Gdn_Plugin
      * @since 0.1
      * @package mailfilter
      */
-    public function userModel_beforeRegister_handler($sender, $args): void
+    public function UserModel_BeforeRegister_Handler($sender, &$args): void
     {
         // Get mail provider from form.
         if (isset($args['RegisteringUser'])) {
@@ -59,29 +55,29 @@ class MailcheckerPlugin extends Gdn_Plugin
         } else {
             $email = $args['User']['Email'];
         }
+
         // Return if no vaild mail.
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return;
         }
 
-        if (file_exists((__DIR__ . '/allowed_domains_default.php'))) {
-            require(__DIR__ . '/allowed_domains_default.php');
-        }
-
 
         // Try to get most recent list which is held in cache folder.
         $allowed_domains = Gdn::config(
-            'mailfilter.allowed_domains',
-            $allowed_domains_default ?? ''
+            'Plugins.mailfilter.allowed_domains',
+            ''
         );
         $allowed_domains = explode(",", $allowed_domains);
 
         // Get lowercase domain from email.
-        $domainStart = strrpos($email, '@') + 1;
-        $domain = strtolower(substr($email, $domainStart));
+        if (strrpos($email, '@') < 1) {
+            return;
+        }
 
-        // Return if domain is not blacklisted.
-        if (!in_array($domain, $allowed_domains)) {
+        $domain = explode("@", $email)[1];
+
+        // Return if domain is listed.
+        if (in_array($domain, $allowed_domains)) {
             return;
         }
 
@@ -90,20 +86,7 @@ class MailcheckerPlugin extends Gdn_Plugin
             'Email',
             'Your mail domain is not allowed.'
         );
-        $args['Valid'] = false;
-    }
 
-    /**
-     * Update the list in the config
-     * @param string $domains list of comma seperated domains
-     * @return void
-     * @package mailfilter
-     */
-    private function updateList(string $domains): void
-    {
-        Gdn::config()->saveToConfig(
-            'mailfilter.allowed_domains',
-            $domains
-        );
+        $args['Valid'] = false;
     }
 }
